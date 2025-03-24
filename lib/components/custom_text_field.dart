@@ -4,7 +4,11 @@ class CustomTextField extends StatelessWidget {
   final String label;
   final bool obscureText;
 
-  const CustomTextField({super.key, required this.label, this.obscureText = false});
+  const CustomTextField({
+    required this.label,
+    super.key,
+    this.obscureText = false,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -12,10 +16,13 @@ class CustomTextField extends StatelessWidget {
       obscureText: obscureText,
       style: const TextStyle(fontSize: 16),
       decoration: InputDecoration(
-        border: OutlineInputBorder(),
+        border: const OutlineInputBorder(),
         labelText: label,
         labelStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.w400),
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 16,
+          vertical: 10,
+        ),
         focusedBorder: const OutlineInputBorder(
           borderSide: BorderSide(color: Colors.blue, width: 2),
         ),
