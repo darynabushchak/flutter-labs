@@ -7,12 +7,12 @@ class CustomTextField extends StatelessWidget {
   final String? Function(String?)? validator;
 
   const CustomTextField({
-    Key? key,
-    this.controller,
     required this.label,
+    super.key,
+    this.controller,
     this.obscureText = false,
     this.validator,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -23,7 +23,8 @@ class CustomTextField extends StatelessWidget {
         border: const OutlineInputBorder(),
         labelText: label,
         labelStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.w400),
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+        contentPadding:
+            const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
       ),
       validator: validator,
     );
