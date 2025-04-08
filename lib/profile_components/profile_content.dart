@@ -45,12 +45,12 @@ class _ProfileContentState extends State<ProfileContent> {
 
     await provider.saveUser(updatedUser);
 
-    if (context.mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Profile updated')),
-      );
-      setState(() {}); // оновлюємо інтерфейс
-    }
+    if (!mounted) return;
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Profile updated')),
+    );
+    setState(() {});
   }
 
   @override

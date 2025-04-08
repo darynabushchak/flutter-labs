@@ -14,10 +14,10 @@ class LoginForm extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final _formKey = GlobalKey<FormState>();
+    final formKey = GlobalKey<FormState>();
 
     return Form(
-      key: _formKey,
+      key: formKey,
       child: Column(
         children: [
           CustomTextField(
@@ -48,7 +48,7 @@ class LoginForm extends StatelessWidget {
           const SizedBox(height: 20),
           ElevatedButton(
             onPressed: () {
-              if (_formKey.currentState?.validate() ?? false) {
+              if (formKey.currentState?.validate() ?? false) {
                 FocusScope.of(context).unfocus();
               } else {
                 ScaffoldMessenger.of(context).showSnackBar(

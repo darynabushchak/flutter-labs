@@ -96,7 +96,7 @@ class _RegisterFormState extends State<RegisterForm> {
               }
             },
             child: const Text('Register'),
-          )
+          ),
         ],
       ),
     );

@@ -17,7 +17,7 @@ class AppState {
   }
 
   static Future<bool> login(String email, String password) async {
-    bool success = await userRepository.login(email, password);
+    final bool success = await userRepository.login(email, password);
     if (success) {
       activeUser = await userRepository.getUser();
     }
