@@ -12,10 +12,10 @@ class BottomNavBar extends StatelessWidget {
             Navigator.pushNamed(context, '/');
             break;
           case 1:
-            Navigator.pushNamed(context, '/filter');  // Замість 'search' - 'filter'
+            Navigator.pushNamed(context, '/filter');
             break;
           case 2:
-            Navigator.pushNamed(context, '/profile'); // Замість 'profile' - 'profile'
+            Navigator.pushNamed(context, '/profile');
             break;
         }
       },
