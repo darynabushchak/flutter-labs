@@ -1,3 +1,4 @@
+import 'package:app/screens/filter_screen.dart';
 import 'package:app/screens/home_screen.dart';
 import 'package:app/screens/login_screen.dart';
 import 'package:app/screens/profile_screen.dart';
@@ -38,7 +39,7 @@ class MyApp extends StatelessWidget {
         '/login': (context) => const LoginScreen(),
         '/register': (context) => const RegisterScreen(),
         '/profile': (context) => const ProfileScreen(),
-        '/filter': (context) => const Placeholder(),
+        '/filter': (context) => const FilterScreen(),
       },
     );
   }
