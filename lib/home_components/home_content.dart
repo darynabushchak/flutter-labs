@@ -52,7 +52,7 @@ class _HomeContentState extends State<HomeContent> {
 
   void _pickColor(BuildContext context) async {
     Color picked = bulbColor;
-    await showDialog(
+    await showDialog<void>(
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Select Color'),
@@ -66,10 +66,11 @@ class _HomeContentState extends State<HomeContent> {
           TextButton(
             child: const Text('OK'),
             onPressed: () => Navigator.of(context).pop(),
-          )
+          ),
         ],
       ),
     );
+
     setState(() => bulbColor = picked);
     final hex =
         '#${bulbColor.value.toRadixString(16).substring(2).toUpperCase()}';
