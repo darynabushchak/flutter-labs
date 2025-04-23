@@ -6,8 +6,8 @@ import 'package:provider/provider.dart';
 class ProfileButtons extends StatelessWidget {
   const ProfileButtons({super.key});
 
-  Future<void> _confirmLogout(BuildContext context) async {
-    final bool? shouldLogout = await showDialog<bool>(
+  Future<void> _handleLogout(BuildContext context) async {
+    final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Confirm Logout'),
@@ -25,9 +25,11 @@ class ProfileButtons extends StatelessWidget {
       ),
     );
 
-    if (shouldLogout == true && context.mounted) {
+    if (confirmed == true && context.mounted) {
       await context.read<UserProvider>().logout();
-      Navigator.pushReplacementNamed(context, '/login');
+      if (context.mounted) {
+        Navigator.pushReplacementNamed(context, '/login');
+      }
     }
   }
 
@@ -39,7 +41,7 @@ class ProfileButtons extends StatelessWidget {
       text: isLoggedIn ? 'Log out' : 'Login or Sign Up',
       onPressed: () {
         if (isLoggedIn) {
-          _confirmLogout(context);
+          _handleLogout(context);
         } else {
           Navigator.pushReplacementNamed(context, '/login');
         }

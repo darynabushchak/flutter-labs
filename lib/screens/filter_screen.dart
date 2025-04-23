@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:app/home_components/light_bulb_widget.dart';
 import 'package:flutter/material.dart';
 
@@ -18,7 +16,6 @@ class _FilterScreenState extends State<FilterScreen> {
     Colors.blue,
   ];
   int currentIndex = 0;
-  Timer? _timer;
 
   @override
   void initState() {
@@ -27,11 +24,6 @@ class _FilterScreenState extends State<FilterScreen> {
   }
 
   void _startColorCycle() {
-    _timer = Timer.periodic(const Duration(seconds: 3), (timer) {
-      setState(() {
-        currentIndex = (currentIndex + 1) % colors.length;
-      });
-    });
   }
 
   @override

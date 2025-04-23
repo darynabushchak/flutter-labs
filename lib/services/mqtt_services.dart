@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:flutter/cupertino.dart';
 import 'package:mqtt_client/mqtt_client.dart';
 import 'package:mqtt_client/mqtt_server_client.dart';
 
@@ -13,8 +14,8 @@ class MqttService {
     client.port = 1883;
     client.logging(on: false);
     client.keepAlivePeriod = 20;
-    client.onConnected = () => print('Connected to MQTT broker');
-    client.onDisconnected = () => print('Disconnected from MQTT broker');
+    client.onConnected = () => debugPrint('Connected to MQTT broker');
+    client.onDisconnected = () => debugPrint('Disconnected from MQTT broker');
 
     final connMessage = MqttConnectMessage()
         .withClientIdentifier('smart_lights_flutter')
@@ -25,15 +26,13 @@ class MqttService {
     try {
       await client.connect();
     } catch (e) {
-      print('MQTT connection failed: \$e');
+      debugPrint('MQTT connection failed: \$e');
       client.disconnect();
       return;
     }
 
     if (client.connectionStatus!.state == MqttConnectionState.connected) {
-      print('Connected to broker!');
-      client.subscribe('light/status', MqttQos.atMostOnce);
-      client.subscribe('light/color', MqttQos.atMostOnce);
+      debugPrint('Connected to broker!');
 
       client.updates!.listen((List<MqttReceivedMessage<MqttMessage>> messages) {
         final recMess = messages[0].payload as MqttPublishMessage;
