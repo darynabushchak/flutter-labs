@@ -1,9 +1,37 @@
+
+import 'dart:isolate';
 import 'package:app/home_components/home_buttons.dart';
 import 'package:app/home_components/light_bulb_widget.dart';
 import 'package:app/home_components/mode_selector.dart';
 import 'package:app/services/mqtt_services.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
+
+void countRedColorsInIsolate(List<dynamic> message) {
+  final sendPort = message[0] as SendPort;
+  final allColors = message[1] as List<String>;
+
+  int count = 0;
+  for (var c in allColors) {
+    try {
+      if (!c.startsWith('#') || c.length != 7) continue;
+
+      final hex = c.substring(1).toUpperCase();
+      final r = int.parse(hex.substring(0, 2), radix: 16);
+      final g = int.parse(hex.substring(2, 4), radix: 16);
+      final b = int.parse(hex.substring(4, 6), radix: 16);
+
+      if (r >= 200 && r <= 255 && g <= 25 && b <= 25) {
+        count++;
+      }
+    } catch (_) {
+      continue;
+    }
+  }
+
+  sendPort.send(count);
+}
 
 class HomeContent extends StatefulWidget {
   const HomeContent({super.key});
@@ -13,6 +41,7 @@ class HomeContent extends StatefulWidget {
 }
 
 class _HomeContentState extends State<HomeContent> {
+  final List<String> mqttColorHistory = [];
   final MqttService mqttService = MqttService();
 
   bool isLightOn = false;
@@ -28,9 +57,12 @@ class _HomeContentState extends State<HomeContent> {
       } else if (message == 'off') {
         setState(() => isLightOn = false);
       } else if (message.startsWith('#') && message.length == 7) {
+        mqttColorHistory.add(message);
+        if (kDebugMode) {
+          print('📥 Додано колір у історію: $message');
+        }
         try {
-          final color =
-              Color(int.parse('FF${message.substring(1)}', radix: 16));
+          final color = Color(int.parse('FF${message.substring(1)}', radix: 16));
           setState(() => bulbColor = color);
         } catch (_) {
           // ignore invalid color
@@ -72,8 +104,7 @@ class _HomeContentState extends State<HomeContent> {
     );
 
     setState(() => bulbColor = picked);
-    final hex =
-        '#${bulbColor.value.toRadixString(16).substring(2).toUpperCase()}';
+    final hex = '#${bulbColor.value.toRadixString(16).substring(2).toUpperCase()}';
     mqttService.publishMessage('light/color', hex);
   }
 
@@ -92,6 +123,30 @@ class _HomeContentState extends State<HomeContent> {
         ElevatedButton(
           onPressed: () => _pickColor(context),
           child: const Text('Pick Color'),
+        ),
+        const SizedBox(height: 10),
+        ElevatedButton(
+          onPressed: () async {
+            final receivePort = ReceivePort();
+            await Isolate.spawn(
+              countRedColorsInIsolate,
+              [receivePort.sendPort, mqttColorHistory],
+            );
+
+            final redCount = await receivePort.first as int;
+            receivePort.close();
+
+            if (context.mounted) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(
+                    '🔴 Red: $redCount, All: ${mqttColorHistory.length}',
+                  ),
+                ),
+              );
+            }
+          },
+          child: const Text('Check Red Colors'),
         ),
         const SizedBox(height: 20),
         const Padding(

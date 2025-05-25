@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:app/components/bottom_nav_bar.dart';
 import 'package:app/home_components/home_content.dart';
+import 'package:app/services/connectivity_notifier.dart';
 import 'package:app/state/user_provider.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
@@ -15,39 +16,43 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  late final StreamSubscription<ConnectivityResult> _subscription;
+  late StreamSubscription<ConnectivityResult> _subscription;
+  late ConnectivityNotifier _connectivityNotifier;
+  late StreamSubscription<bool> _connectivitySubscription;
 
   @override
   void initState() {
     super.initState();
+
+    _connectivityNotifier = ConnectivityNotifier();
+    _connectivityNotifier.onStatusChange.listen((isConnected) {
+      if (!isConnected && mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('📴 Internet connection lost'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    });
 
     final provider = context.read<UserProvider>();
     if (provider.offlineMode) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text('Offline mode: limited functionality'),
+            content: Text('⚠️ Offline mode: limited functionality'),
             backgroundColor: Colors.orange,
           ),
         );
       });
     }
-
-    _subscription = Connectivity().onConnectivityChanged.listen((result) {
-      if (result == ConnectivityResult.none && mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Connection lost'),
-            backgroundColor: Colors.red,
-          ),
-        );
-      }
-    });
   }
 
   @override
   void dispose() {
-    _subscription.cancel();
+    _connectivityNotifier.dispose();
+    _connectivitySubscription.cancel();
     super.dispose();
   }
 
