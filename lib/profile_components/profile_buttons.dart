@@ -6,19 +6,42 @@ import 'package:provider/provider.dart';
 class ProfileButtons extends StatelessWidget {
   const ProfileButtons({super.key});
 
+  Future<void> _handleLogout(BuildContext context) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Confirm Logout'),
+        content: const Text('Are you sure you want to log out?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('No'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            child: const Text('Yes'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed == true && context.mounted) {
+      await context.read<UserProvider>().logout();
+      if (context.mounted) {
+        Navigator.pushReplacementNamed(context, '/login');
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final isLoggedIn = context.watch<UserProvider>().user != null;
 
     return CustomButton(
       text: isLoggedIn ? 'Log out' : 'Login or Sign Up',
-      onPressed: () async {
+      onPressed: () {
         if (isLoggedIn) {
-          await context.read<UserProvider>().logout();
-
-          if (context.mounted) {
-            Navigator.pushReplacementNamed(context, '/login');
-          }
+          _handleLogout(context);
         } else {
           Navigator.pushReplacementNamed(context, '/login');
         }

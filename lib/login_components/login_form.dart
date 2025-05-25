@@ -1,4 +1,5 @@
 import 'package:app/components/custom_text_field.dart';
+import 'package:app/services/connectivity_service.dart';
 import 'package:app/utils/validators.dart';
 import 'package:flutter/material.dart';
 
@@ -47,7 +48,18 @@ class LoginForm extends StatelessWidget {
           ),
           const SizedBox(height: 20),
           ElevatedButton(
-            onPressed: () {
+            onPressed: () async {
+              final hasConnection =
+                  await ConnectivityService.hasInternetConnection();
+              if (!hasConnection) {
+                if (context.mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('No internet connection')),
+                  );
+                }
+                return;
+              }
+
               if (formKey.currentState?.validate() ?? false) {
                 FocusScope.of(context).unfocus();
               } else {
