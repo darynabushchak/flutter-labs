@@ -15,7 +15,9 @@ dependencies:
   mqtt_client: ^10.2.0
   flutter_colorpicker: ^1.0.3
   mobile_scanner: ^3.2.0
-  http: ^0.13.6
+  usb_serial:
+    path: lib/plugins/usb_serial
+
 
 
 dev_dependencies:

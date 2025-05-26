@@ -1,4 +1,5 @@
-import 'package:app/services/wifi_service.dart';
+import 'dart:convert';
+import 'package:app/services/serial_service.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
@@ -11,90 +12,58 @@ class FilterScreen extends StatefulWidget {
 }
 
 class _FilterScreenState extends State<FilterScreen> {
-  String? scannedSerial;
-  String? scannedModel;
-
   void openQRScanner() async {
     await Navigator.push<void>(
       context,
       MaterialPageRoute<void>(
         builder: (_) => QRScanView(
-          onScanned: (String data) {
-            final parts = data.split(';');
-            if (parts.length == 2) {
-              Navigator.push(
-                context,
-                MaterialPageRoute<void>(
-                  builder: (_) => SerialEditScreen(
-                    initialSerial: parts[0],
-                    model: parts[1],
-                  ),
+          onAuthenticated: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute<void>(
+                builder: (_) => const SerialEditScreen(
+                  initialSerial: '12345678',
+                  model: 'ESP32',
                 ),
-              );
-            }
+              ),
+            );
           },
         ),
       ),
     );
   }
 
-  void displaySerialNumber() async {
-    showDialog(
-      context: context,
-      builder: (context) => FutureBuilder<String>(
-        future: WifiService.readSerial(),
-        builder: (context, snapshot) {
-          if (kDebugMode) {
-            print('ESP read result: ${snapshot.data}');
-          }
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const AlertDialog(
-              title: Text('Checking...'),
-              content: SizedBox(
-                height: 50,
-                child: Center(child: CircularProgressIndicator()),
-              ),
-            );
-          } else if (snapshot.hasError) {
-            return AlertDialog(
-              title: const Text('Connection Error'),
-              content: const Text('Failed to connect to microcontroller.'),
-              actions: [
-                TextButton(
-                  onPressed: () => Navigator.pop(context),
-                  child: const Text('Close'),
-                ),
-              ],
-            );
-          } else {
-            return AlertDialog(
-              title: const Text('Serial Number'),
-              content: Text(snapshot.data ?? 'Unknown'),
-              actions: [
-                TextButton(
-                  onPressed: () => Navigator.pop(context),
-                  child: const Text('Close'),
-                ),
-              ],
-            );
-          }
-        },
-      ),
-    );
-  }
-
   Future<void> configureMicrocontroller() async {
-    final response =
-        await WifiService.writeSerial('admin', '1234', 'CONFIG123');
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Configured: $response')),
-    );
+    if (kDebugMode) {
+      print('🟦 Sending CONFIG123...');
+    }
+    try {
+      final response =
+          await SerialService.sendToMicrocontroller('{"action":"CONFIG123"}');
+
+      if (kDebugMode) {
+        print('📦 CONFIG response: $response');
+      }
+
+      final decoded = jsonDecode(response.trim());
+      final message = decoded['message'] ?? 'Unknown response';
+
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('✅ $message')),
+      );
+    } catch (e) {
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('❌ Configure failed: $e')),
+      );
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Microcontroller Config')),
+      appBar: AppBar(title: const Text('Microcontroller Config (USB)')),
       body: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
@@ -105,10 +74,9 @@ class _FilterScreenState extends State<FilterScreen> {
               child: const Text('Scan QR Code'),
             ),
             const SizedBox(height: 12),
-            const SizedBox(height: 12),
             ElevatedButton(
-              onPressed: displaySerialNumber,
-              child: const Text('Display the Serial Number'),
+              onPressed: configureMicrocontroller,
+              child: const Text('Configure Microcontroller'),
             ),
           ],
         ),
@@ -118,21 +86,65 @@ class _FilterScreenState extends State<FilterScreen> {
 }
 
 class QRScanView extends StatelessWidget {
-  final void Function(String data) onScanned;
+  final VoidCallback onAuthenticated;
 
-  const QRScanView({required this.onScanned, super.key});
+  const QRScanView({required this.onAuthenticated, super.key});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('QR Code Scanner')),
       body: MobileScanner(
-        onDetect: (capture) {
+        onDetect: (capture) async {
           final barcode = capture.barcodes.first;
           final code = barcode.rawValue;
-          if (code != null) {
-            Navigator.pop(context);
-            onScanned(code);
+
+          if (code == null) return;
+
+          try {
+            final cleaned = code.trim();
+            final decoded = jsonDecode(cleaned);
+            final username = decoded['username'] as String?;
+            final password = decoded['password'] as String?;
+
+            if (username == null || password == null) throw Exception();
+
+            final authMessage = jsonEncode({
+              'action': "auth",
+              'username': username,
+              'password': password,
+            });
+
+            final response =
+                await SerialService.sendToMicrocontroller(authMessage);
+
+            if (kDebugMode) {
+              print('📨 Auth response: $response');
+            }
+
+            try {
+              final jsonResponse = jsonDecode(response.trim());
+              if (jsonResponse['status'] == 'OK') {
+                Navigator.pop(context);
+                onAuthenticated();
+              } else {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('❌ Invalid credentials')),
+                );
+              }
+            } catch (e) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                    content: Text('Unexpected response from device')),
+              );
+            }
+          } catch (e) {
+            if (kDebugMode) {
+              print('❌ QR decode error: $e');
+            }
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Invalid QR code format')),
+            );
           }
         },
       ),
@@ -165,11 +177,27 @@ class _SerialEditScreenState extends State<SerialEditScreen> {
   }
 
   Future<void> submitSerial() async {
-    final response =
-        await WifiService.writeSerial('admin', '1234', _serialController.text);
+    final serial = _serialController.text.trim();
+
+    if (serial.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please enter serial number')),
+      );
+      return;
+    }
+
+    final message = jsonEncode({"serial": serial});
+
+    final response = await SerialService.sendToMicrocontroller(message);
+
+    if (!context.mounted) return;
     setState(() {
       result = response;
     });
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Device response: $response')),
+    );
   }
 
   @override
@@ -201,7 +229,10 @@ class _SerialEditScreenState extends State<SerialEditScreen> {
             ),
             if (result.isNotEmpty) ...[
               const SizedBox(height: 16),
-              Text('Result: $result'),
+              Text(
+                'Result: $result',
+                style: const TextStyle(fontSize: 16),
+              ),
             ],
           ],
         ),

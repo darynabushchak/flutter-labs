@@ -27,7 +27,7 @@ void writeSerialToEEPROM(const String& serial) {
   for (int i = 0; i < serial.length(); ++i) {
     EEPROM.write(i, serial[i]);
   }
-  EEPROM.write(serial.length(), '\0'); // Terminate string
+  EEPROM.write(serial.length(), '\0'); 
   EEPROM.commit();
 }
 
@@ -57,8 +57,14 @@ void handleWriteSerial() {
 void setup() {
   Serial.begin(9600);
   EEPROM.begin(512);
-  WiFi.begin(ssid, password);
 
+  serialNumber = readSerialFromEEPROM();
+  if (serialNumber == "" || serialNumber == "undefined") {
+    writeSerialToEEPROM("DEFAULT123");
+    serialNumber = "DEFAULT123";
+  }
+
+  WiFi.begin(ssid, password);
   Serial.print("Connecting to Wi-Fi");
   while (WiFi.status() != WL_CONNECTED) {
     delay(500);

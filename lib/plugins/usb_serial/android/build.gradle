@@ -1,0 +1,13 @@
+apply plugin: 'com.android.library'
+
+android {
+    namespace 'com.felhr.usbserial'
+    compileSdkVersion 33
+
+    defaultConfig {
+        minSdkVersion 21
+    }
+}
+
+dependencies {
+}
