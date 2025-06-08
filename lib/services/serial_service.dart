@@ -24,7 +24,7 @@ class SerialService {
       print('🟢 Found USB device: ${device.productName}');
     }
 
-    final UsbPort? port = await UsbSerial.createPort(device);
+    final UsbPort? port = await UsbSerial.createFromDeviceId(device.deviceId);
     if (port == null) {
       if (kDebugMode) {
         print('❌ Failed to create USB port.');

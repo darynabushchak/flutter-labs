@@ -14,12 +14,9 @@ dependencies:
   connectivity_plus: ^4.0.1
   mqtt_client: ^10.2.0
   flutter_colorpicker: ^1.0.3
+  usb_serial: ^0.5.2
   mobile_scanner: ^3.2.0
-  usb_serial:
-    path: lib/plugins/usb_serial
-
-
-
+  flutter_bloc: ^9.1.1
 dev_dependencies:
   flutter_test:
     sdk: flutter
