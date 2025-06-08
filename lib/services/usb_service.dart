@@ -1,7 +1,6 @@
 import 'dart:convert';
 import 'dart:typed_data' as typed;
 
-import 'package:app/screens/serial_number_screen.dart';
 import 'package:flutter/foundation.dart';
 import 'package:usb_serial/usb_serial.dart';
 
@@ -38,7 +37,7 @@ class UsbService {
 
   Future<void> sendData(Map<String, dynamic> data) async {
     if (_port == null) {
-      debugPrint('Pofinal rt not open');
+      debugPrint('Port not open');
       return;
     }
 
@@ -97,5 +96,17 @@ class UsbService {
     await _port?.close();
     _port = null;
     debugPrint('Port closed');
+  }
+}
+
+class UsbPortReader {
+  final UsbPort _port;
+
+  UsbPortReader(this._port);
+
+  Stream<List<int>> get stream async* {
+    await for (typed.Uint8List data in _port.inputStream!) {
+      yield data;
+    }
   }
 }
