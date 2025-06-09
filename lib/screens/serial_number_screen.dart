@@ -1,5 +1,5 @@
-import 'package:app/cubits/serial_number_cubit.dart';
-import 'package:app/cubits/serial_number_state.dart';
+import 'package:app/cubits/serial_number/serial_number_cubit.dart';
+import 'package:app/cubits/serial_number/serial_number_state.dart';
 import 'package:app/services/usb_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';

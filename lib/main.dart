@@ -1,24 +1,11 @@
-import 'package:app/screens/filter_screen.dart';
-import 'package:app/screens/home_screen.dart';
 import 'package:app/screens/login_screen.dart';
 import 'package:app/screens/profile_screen.dart';
-import 'package:app/screens/register_screen.dart';
-import 'package:app/state/user_provider.dart';
+import 'package:app/screens/scan_qr_code_screen.dart';
+import 'package:app/screens/serial_number_screen.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 
-void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-
-  final userProvider = UserProvider();
-  await userProvider.init();
-
-  runApp(
-    ChangeNotifierProvider(
-      create: (_) => userProvider,
-      child: const MyApp(),
-    ),
-  );
+void main() {
+  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
@@ -26,20 +13,16 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final user = context.watch<UserProvider>().user;
-    final initialRoute = user != null ? '/home' : '/register';
-
     return MaterialApp(
+      title: 'Flutter Labs - Cubit',
       debugShowCheckedModeBanner: false,
-      title: 'Festivo App',
-      initialRoute: initialRoute,
+      theme: ThemeData(primarySwatch: Colors.blue),
+      initialRoute: '/login',
       routes: {
-        '/': (context) => const HomeScreen(),
-        '/home': (context) => const HomeScreen(),
-        '/login': (context) => const LoginScreen(),
-        '/register': (context) => const RegisterScreen(),
-        '/profile': (context) => const ProfileScreen(),
-        '/filter': (context) => const FilterScreen(),
+        '/login': (_) => LoginScreen(),
+        '/serial-number': (_) => const SerialNumberScreen(),
+        '/profile': (_) => const ProfileScreen(),
+        '/qr-scanner': (_) => const QrScannerScreen(),
       },
     );
   }

@@ -1,7 +1,8 @@
 import 'dart:convert';
-import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../screens/serial_number_screen.dart';
+import 'package:app/cubits/serial_number/serial_number_state.dart';
+import 'package:app/services/usb_service.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 class SerialNumberCubit extends Cubit<SerialNumberState> {
   final UsbService usbService;
