@@ -5,11 +5,11 @@ abstract class UsbPort {
   static const int parityOdd = 1;
   static const int parityEven = 2;
 
+  Stream<Uint8List>? get inputStream;
+
   Future<bool> open();
 
   Future<bool> close();
-
-  Stream<Uint8List>? get inputStream;
 
   Future<int> write(Uint8List data);
 

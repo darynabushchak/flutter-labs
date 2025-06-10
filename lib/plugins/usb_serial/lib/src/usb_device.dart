@@ -26,13 +26,12 @@ class UsbDevice {
     );
   }
 
-
   Map<String, dynamic> toMap() => {
-    'vendorId': vendorId,
-    'productId': productId,
-    'deviceName': deviceName,
-    'manufacturerName': manufacturerName,
-    'productName': productName,
-    'version': version,
-  };
+        'vendorId': vendorId,
+        'productId': productId,
+        'deviceName': deviceName,
+        'manufacturerName': manufacturerName,
+        'productName': productName,
+        'version': version,
+      };
 }

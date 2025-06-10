@@ -43,12 +43,12 @@ class _UsbSerialPort extends UsbPort {
 
   @override
   Future<bool> open() async {
-    return true; // Already opened by createPort
+    return true;
   }
 
   @override
   Future<bool> close() async {
-    return true; // Simulated close
+    return true;
   }
 
   @override
