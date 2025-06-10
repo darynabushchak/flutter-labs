@@ -1,7 +1,7 @@
 import 'dart:async';
 
-import 'package:app/plugins/usb_serial/lib/src/usb_port.dart';
 import 'package:app/plugins/usb_serial/lib/src/usb_device.dart';
+import 'package:app/plugins/usb_serial/lib/src/usb_port.dart';
 import 'package:flutter/services.dart';
 
 class UsbSerial {
@@ -78,7 +78,11 @@ class _UsbSerialPort extends UsbPort {
 
   @override
   Future<void> setPortParameters(
-      int baudRate, int dataBits, int stopBits, int parity,) async {
+    int baudRate,
+    int dataBits,
+    int stopBits,
+    int parity,
+  ) async {
     await UsbSerial._channel.invokeMethod('setPortParameters', {
       'deviceName': _deviceName,
       'baudRate': baudRate,

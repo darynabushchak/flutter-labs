@@ -3,7 +3,7 @@ import 'package:app/services/connectivity_service.dart';
 import 'package:app/utils/validators.dart';
 import 'package:flutter/material.dart';
 
-class LoginForm extends StatelessWidget {
+class LoginForm extends StatefulWidget {
   final TextEditingController emailController;
   final TextEditingController passwordController;
 
@@ -14,15 +14,20 @@ class LoginForm extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
-    final formKey = GlobalKey<FormState>();
+  State<LoginForm> createState() => _LoginFormState();
+}
 
+class _LoginFormState extends State<LoginForm> {
+  final _formKey = GlobalKey<FormState>();
+
+  @override
+  Widget build(BuildContext context) {
     return Form(
-      key: formKey,
+      key: _formKey,
       child: Column(
         children: [
           CustomTextField(
-            controller: emailController,
+            controller: widget.emailController,
             label: 'Email',
             validator: (value) {
               if (value == null || value.isEmpty) {
@@ -36,7 +41,7 @@ class LoginForm extends StatelessWidget {
           ),
           const SizedBox(height: 10),
           CustomTextField(
-            controller: passwordController,
+            controller: widget.passwordController,
             label: 'Password',
             obscureText: true,
             validator: (value) {
@@ -49,21 +54,24 @@ class LoginForm extends StatelessWidget {
           const SizedBox(height: 20),
           ElevatedButton(
             onPressed: () async {
+              final messenger = ScaffoldMessenger.of(context);
+              final focusScope = FocusScope.of(context);
+
               final hasConnection =
                   await ConnectivityService.hasInternetConnection();
+              if (!mounted) return;
+
               if (!hasConnection) {
-                if (context.mounted) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('No internet connection')),
-                  );
-                }
+                messenger.showSnackBar(
+                  const SnackBar(content: Text('No internet connection')),
+                );
                 return;
               }
 
-              if (formKey.currentState?.validate() ?? false) {
-                FocusScope.of(context).unfocus();
+              if (_formKey.currentState?.validate() ?? false) {
+                focusScope.unfocus();
               } else {
-                ScaffoldMessenger.of(context).showSnackBar(
+                messenger.showSnackBar(
                   const SnackBar(content: Text('Invalid form')),
                 );
               }
