@@ -7,7 +7,7 @@ class AuthCubit extends Cubit<AuthState> {
   Future<void> login(String email, String password) async {
     emit(AuthLoading());
     try {
-      await Future.delayed(const Duration(seconds: 2));
+      await Future.delayed(const Duration(seconds: 2), () {});
       if (email == 'admin' && password == '1234') {
         emit(AuthSuccess());
       } else {

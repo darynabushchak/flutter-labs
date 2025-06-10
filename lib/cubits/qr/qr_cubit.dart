@@ -1,17 +1,34 @@
-abstract class QrState {}
+import 'dart:convert';
+import 'package:app/cubits/qr/qr_state.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
-class QrInitial extends QrState {}
+class QrCubit extends Cubit<QrState> {
+  QrCubit() : super(QrInitial());
 
-class QrScanning extends QrState {}
+  void startScanning() {
+    emit(QrScanning());
+  }
 
-class QrScanned extends QrState {
-  final String rawValue;
+  void processQrCode(String rawValue) {
+    emit(QrScanning());
 
-  QrScanned(this.rawValue);
-}
+    try {
+      final data = json.decode(rawValue);
+      if (data is Map<String, dynamic>) {
+        if (data.containsKey('username') && data.containsKey('password')) {
+          emit(QrScanned(rawValue));
+        } else {
+          emit(QrError('QR code does not contain valid credentials.'));
+        }
+      } else {
+        emit(QrError('Invalid QR code format.'));
+      }
+    } catch (e) {
+      emit(QrError('Failed to parse QR code.'));
+    }
+  }
 
-class QrError extends QrState {
-  final String message;
-
-  QrError(this.message);
+  void reset() {
+    emit(QrInitial());
+  }
 }

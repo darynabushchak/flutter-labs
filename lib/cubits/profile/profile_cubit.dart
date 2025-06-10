@@ -7,11 +7,9 @@ class ProfileCubit extends Cubit<ProfileState> {
   Future<void> fetchUserProfile() async {
     emit(ProfileLoading());
     try {
-      await Future.delayed(const Duration(seconds: 2));
-
+      await Future.delayed(const Duration(seconds: 2), () {});
       const name = 'John Doe';
       const email = 'john.doe@example.com';
-
       emit(ProfileLoaded(name: name, email: email));
     } catch (e) {
       emit(ProfileError('Failed to load profile: ${e.toString()}'));

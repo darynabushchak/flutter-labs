@@ -60,7 +60,7 @@ class SerialNumberScreen extends StatelessWidget {
 
   void _showEditDialog(BuildContext context, SerialNumberCubit cubit) {
     final serialController = TextEditingController();
-    showDialog(
+    showDialog<void>(
       context: context,
       builder: (dialogContext) => AlertDialog(
         title: const Text('Enter New Serial Number'),

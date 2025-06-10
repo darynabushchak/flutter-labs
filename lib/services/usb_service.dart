@@ -41,7 +41,7 @@ class UsbService {
       return;
     }
 
-    String jsonString = json.encode(data);
+    final String jsonString = json.encode(data);
     await _port!.write(typed.Uint8List.fromList(utf8.encode('$jsonString\n')));
     debugPrint('Sent: $jsonString');
   }
@@ -56,16 +56,18 @@ class UsbService {
       return null;
     }
 
-    final reader = UsbPortReader(_port!);
-    final buffer = StringBuffer();
+    final UsbPortReader reader = UsbPortReader(_port!);
+    final StringBuffer buffer = StringBuffer();
     bool lineEnded = false;
 
     try {
-      await for (var chunk in reader.stream.timeout(const Duration(seconds: 3),
-          onTimeout: (sink) {
-        sink.close();
-      })) {
-        for (var byte in chunk) {
+      await for (final chunk in reader.stream.timeout(
+        const Duration(seconds: 3),
+        onTimeout: (sink) {
+          sink.close();
+        },
+      )) {
+        for (final byte in chunk) {
           if (byte >= 32 && byte <= 126) {
             buffer.write(String.fromCharCode(byte));
           }
@@ -83,7 +85,7 @@ class UsbService {
       return null;
     }
 
-    final response = buffer.toString().trim();
+    final String response = buffer.toString().trim();
     debugPrint('Received: $response');
     return response.isEmpty ? null : response;
   }
@@ -105,7 +107,7 @@ class UsbPortReader {
   UsbPortReader(this._port);
 
   Stream<List<int>> get stream async* {
-    await for (typed.Uint8List data in _port.inputStream!) {
+    await for (final typed.Uint8List data in _port.inputStream!) {
       yield data;
     }
   }

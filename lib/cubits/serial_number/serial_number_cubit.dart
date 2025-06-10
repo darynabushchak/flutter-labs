@@ -25,8 +25,11 @@ class SerialNumberCubit extends Cubit<SerialNumberState> {
       if (response != null) {
         final data = jsonDecode(response);
         final message = data['message']?.toString() ?? '';
-        emit(SerialNumberLoaded(
-            message.isEmpty ? 'Serial number is empty' : message));
+        emit(
+          SerialNumberLoaded(
+            message.isEmpty ? 'Serial number is empty' : message,
+          ),
+        );
       } else {
         emit(SerialNumberError('Failed to read serial number'));
       }

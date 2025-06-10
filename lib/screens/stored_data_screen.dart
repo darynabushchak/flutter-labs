@@ -15,7 +15,8 @@ class _StoredDataScreenState extends State<StoredDataScreen> {
   @override
   void initState() {
     super.initState();
-    _readResult = SerialService.sendToMicrocontroller('{"action":"read_serial"}');
+    _readResult =
+        SerialService.sendToMicrocontroller('{"action":"read_serial"}');
   }
 
   @override
